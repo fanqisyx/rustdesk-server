@@ -3,8 +3,7 @@ name: Company management Windows
 on:
   workflow_dispatch:
   push:
-    branches: ['**']
-    paths: ['management/**', 'tools/**', 'docs/company/**', 'README.md', 'COMPANY_RELEASE', '.github/workflows/company-management.yml']
+    branches: ['release/company-*']
     tags: ['v*-company.*']
   pull_request:
     paths: ['management/**', 'tools/**', 'docs/company/**', 'README.md', 'COMPANY_RELEASE', '.github/workflows/company-management.yml']
