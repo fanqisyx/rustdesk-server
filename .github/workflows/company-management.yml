@@ -66,7 +66,18 @@ jobs:
               $null = [System.Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$tokens, [ref]$errors)
               if ($errors.Count) { throw ($errors | Out-String) }
             }
-            ./windows/Install-Management.ps1 -PublicIp '203.0.113.10' -WhatIf
+            $occupied = @(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in @(80,443,21114) })
+            if ($occupied.Count) {
+              try {
+                ./windows/Install-Management.ps1 -PublicIp '203.0.113.10' -WhatIf
+                throw 'Expected the installer to reject occupied ports'
+              } catch {
+                if ($_.Exception.Message -notlike 'A required port is already in use*') { throw }
+                Write-Output 'Installer correctly refused an existing listener without stopping it.'
+              }
+            } else {
+              ./windows/Install-Management.ps1 -PublicIp '203.0.113.10' -WhatIf
+            }
           } finally { Pop-Location }
           ./tools/smoke_windows_service.ps1 -BundleRoot $bundle
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
