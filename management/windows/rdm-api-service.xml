@@ -1,0 +1,23 @@
+<service>
+  <id>RustDeskCompanyAPI</id>
+  <name>RustDesk Company Management API</name>
+  <description>Company accounts, asset groups, device permissions and sharing.</description>
+  <executable>%BASE%\..\rustdesk-management.exe</executable>
+  <arguments>serve --host 127.0.0.1 --port 21114</arguments>
+  <workingdirectory>%BASE%\..</workingdirectory>
+  <env name="RDM_DATABASE" value="%BASE%\..\data\management.sqlite3"/>
+  <env name="RDM_ALLOW_REGISTRATION" value="1"/>
+  <env name="PYTHONUNBUFFERED" value="1"/>
+  <serviceaccount>
+    <domain>NT AUTHORITY</domain>
+    <user>LocalService</user>
+  </serviceaccount>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <stoptimeout>30 sec</stoptimeout>
+  <logpath>%BASE%\..\data\logs\api</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+</service>

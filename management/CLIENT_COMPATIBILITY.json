@@ -1,0 +1,9 @@
+{
+  "api_version": "0.1.0",
+  "schema_version": 2,
+  "client_repository": "https://github.com/fanqisyx/rustdesk",
+  "tested_client_release": "v1.5.1-company.1",
+  "initial_management_source_commit": "0f54cb0addc4af7b18bfa924be8a2113af4b0a06",
+  "source_directory": "management",
+  "maintenance": "Management API development now belongs to this rustdesk-server fork."
+}

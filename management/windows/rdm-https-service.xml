@@ -1,0 +1,21 @@
+<service>
+  <id>RustDeskCompanyHTTPS</id>
+  <name>RustDesk Company Management HTTPS</name>
+  <description>HTTPS proxy and automatic public IP certificate renewal.</description>
+  <executable>%BASE%\caddy.exe</executable>
+  <arguments>run --config "%BASE%\Caddyfile.ip" --adapter caddyfile</arguments>
+  <workingdirectory>%BASE%\..</workingdirectory>
+  <serviceaccount>
+    <domain>NT AUTHORITY</domain>
+    <user>LocalService</user>
+  </serviceaccount>
+  <depend>RustDeskCompanyAPI</depend>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="10 sec"/>
+  <stoptimeout>30 sec</stoptimeout>
+  <logpath>%BASE%\..\data\logs\https</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+</service>

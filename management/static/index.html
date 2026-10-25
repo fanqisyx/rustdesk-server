@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RustDesk · 公司设备管理</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><div><span class="brand">R</span><strong>RustDesk</strong><span class="muted">公司设备管理</span></div><div id="identity"></div></header>
+  <main>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <section id="login" class="login panel">
+      <p class="eyebrow">SELF-HOSTED MANAGEMENT</p><h1>统一管理，按需授权。</h1>
+      <p class="muted" id="account-hint">使用公司账号登录，也可以自行注册。设备权限由管理员分配。</p>
+      <form id="login-form"><label>账号<input name="username" autocomplete="username" pattern="[A-Za-z0-9_.@-]{1,80}" maxlength="80" required></label><label id="display-name-field" hidden>显示名称（选填）<input name="display_name" maxlength="100" disabled></label><label>密码<input name="password" type="password" autocomplete="current-password" maxlength="1024" required></label><label id="password-confirmation-field" hidden>确认密码<input name="password_confirmation" type="password" autocomplete="new-password" maxlength="1024" disabled></label><button id="account-submit">登录管理台</button></form>
+      <p><button type="button" id="toggle-registration" class="secondary">注册公司账号</button></p>
+    </section>
+    <section id="workspace" hidden>
+      <div class="page-title"><div><p class="eyebrow">DEVICE OPERATIONS</p><h1>设备与访问权限</h1><p class="muted">内部固定资产、外部客户设备，各归其组。</p></div><div><button id="refresh" class="secondary">刷新</button> <button id="logout" class="secondary">退出登录</button></div></div>
+      <div id="stats" class="stats"></div>
+      <nav aria-label="管理功能"><button data-tab="devices" class="active">设备目录</button><button data-tab="shares">设备分享</button><button data-tab="groups" data-admin>分组</button><button data-tab="users" data-admin>员工账号</button><button data-tab="grants" data-admin>访问授权</button><button data-tab="audit" data-admin>操作日志</button></nav>
+      <section data-panel="devices">
+        <div class="toolbar"><input id="search" aria-label="搜索设备" placeholder="搜索名称、ID、资产编号、责任人…"><select id="group-filter" aria-label="按分组筛选"></select></div>
+        <div class="table-wrap"><table><thead><tr><th>设备</th><th>所属分组</th><th>资产 / 责任人</th><th>地点</th><th>状态 / 最近授权</th><th>操作</th></tr></thead><tbody id="device-rows"></tbody></table></div>
+        <details class="panel" data-admin><summary>登记受管设备</summary><p class="muted">登记后，将设备专属凭据配置到改造后的被控端。设备 ID 应与该机器的 RustDesk ID 一致。</p>
+          <form id="device-form" class="grid-form"><label>RustDesk ID<input name="id" pattern="[A-Za-z0-9_-]{3,64}" required></label><label>设备名称<input name="name" required maxlength="120"></label><label>所属分组<select name="group_id" class="group-select" required></select></label><label>资产编号<input name="asset_no" maxlength="100"></label><label>责任人<input name="owner" maxlength="100"></label><label>地点<input name="location" maxlength="200"></label><label>系统<select name="platform"><option>Windows</option><option>Linux</option><option>macOS</option><option>Android</option></select></label><label>备注<input name="note" maxlength="1000"></label><button>登记并生成设备凭据</button></form>
+        </details>
+      </section>
+      <section data-panel="groups" hidden><div class="split"><div class="panel"><h2>设备分组</h2><p class="muted">父分组授权自动覆盖子分组；内部与外部分组不能混用。删除前需清空设备、子组及授权。</p><div id="group-list"></div></div><div class="panel"><h2>新建分组</h2><form id="group-form"><label>名称<input name="name" required maxlength="80" placeholder="例如：上海办公室 / 客户 A"></label><label>类别<select name="scope"><option value="internal">内部固定资产</option><option value="external">外部客户设备</option></select></label><label>父分组<select name="parent_id" id="parent-group"></select></label><button>创建分组</button></form></div></div></section>
+      <section data-panel="users" hidden><div class="split"><div class="panel"><h2>员工账号</h2><div id="user-list"></div></div><div class="panel"><h2>新建账号</h2><form id="user-form"><label>登录账号<input name="name" required pattern="[A-Za-z0-9_.@-]{1,80}" autocomplete="off"></label><label>姓名<input name="display_name" required maxlength="100"></label><label>初始密码<input name="password" type="password" required minlength="12" autocomplete="new-password"></label><label>角色<select name="role"><option value="member">员工 · 仅访问获授权设备</option><option value="admin">管理员 · 可管理所有设备和账号</option></select></label><button>创建账号</button></form></div></div></section>
+      <section data-panel="grants" hidden><div class="split"><div class="panel"><h2>已配置授权</h2><p class="muted">同一员工的多条授权取并集。撤销子组授权不会抵消父组授权；需同时检查其他授权来源。</p><div id="grant-list"></div></div><div class="panel"><h2>分配分组权限</h2><form id="grant-form"><label>员工<select name="user_id" id="grant-user" required></select></label><label>分组<select name="group_id" class="group-select" required></select></label><fieldset><legend>允许的操作</legend><label class="check"><input type="checkbox" checked disabled>查看设备目录</label><label class="check"><input name="permissions" value="connect" type="checkbox">远程桌面</label><label class="check"><input name="permissions" value="file_transfer" type="checkbox">文件传输会话</label><label class="check"><input name="permissions" value="terminal" type="checkbox">终端</label><label class="check"><input name="permissions" value="tunnel" type="checkbox">隧道 / RDP</label><label class="check"><input name="permissions" value="camera" type="checkbox">摄像头</label><label class="check"><input name="permissions" value="share" type="checkbox">允许向其他账号分享单台设备</label></fieldset><label>到期时间（本地时间，留空为长期）<input name="expiry" type="datetime-local"></label><p class="muted">远程桌面内的剪贴板、重启等仍由被控端本地策略决定。此处权限控制会话类型。保存会覆盖该员工在此分组的原有授权。</p><button>保存授权</button></form></div></div></section>
+      <section data-panel="shares" hidden><div class="panel"><h2>设备分享</h2><p class="muted">在设备目录点击「分享」，输入接收者的完整登录账号。分享仅针对该台设备；实际权限受分享者当前分组授权约束。可在此撤销发出的分享或退出收到的分享，管理员可管理全部分享。</p><div id="share-list"></div></div></section>
+      <section data-panel="audit" hidden><div class="panel"><h2>操作日志</h2><p class="muted">记录账号登录、资产变更、授权变更及连接授权结果。“连接已授权”表示权限检查通过，实际连接仍需设备密码或人工确认。</p><div class="table-wrap"><table><thead><tr><th>时间</th><th>操作人</th><th>事件</th><th>目标</th><th>详情</th></tr></thead><tbody id="audit-rows"></tbody></table></div><button id="older-audit" class="secondary">加载更早记录</button></div></section>
+    </section>
+  </main>
+  <dialog id="secret-dialog"><h2>保存设备专属凭据</h2><p>凭据只显示一次，请通过安全方式配置到对应被控端。关闭后如遗失，可重新生成。</p><pre id="secret-text"></pre><button id="close-secret">已保存，关闭</button></dialog>
+  <dialog id="move-dialog"><h2>移动设备分组</h2><p>移动后，新分组的授权立即用于后续连接。</p><form id="move-form"><label>新分组<select name="group_id" class="group-select" required></select></label><button>保存</button><button type="button" id="cancel-move" class="secondary">取消</button></form></dialog>
+  <dialog id="password-dialog"><h2>重设账号密码</h2><p>保存后该员工的所有登录会话立即失效。</p><form id="password-form"><label>新密码<input name="password" type="password" required minlength="12" autocomplete="new-password"></label><button>保存</button><button type="button" id="cancel-password" class="secondary">取消</button></form></dialog>
+  <dialog id="share-dialog"><h2>分享远程电脑</h2><p id="share-device-name"></p><p class="muted">只分享这台电脑，接收者不会因此获得继续转发的权限。保存会覆盖你此前向该用户分享这台设备的设置。</p><p id="share-error" role="alert"></p><form id="share-form"><label>接收者登录账号<input name="username" required pattern="[A-Za-z0-9_.@-]{1,80}" maxlength="80" autocomplete="off"></label><fieldset id="share-permissions"><legend>允许的操作</legend></fieldset><label>到期时间（本地时间，留空为长期）<input name="expiry" type="datetime-local"></label><button>保存分享</button><button type="button" id="cancel-share" class="secondary">取消</button></form></dialog>
+</body></html>

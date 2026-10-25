@@ -1,4 +1,25 @@
-# RustDesk Server Program
+# RustDesk 公司管理服务端
+
+本 fork 在原有 hbbs／hbbr 旁增加自建公司账号、设备分组、访问权限、单台设备分享和审计，与 [fanqisyx/rustdesk 客户端 v1.5.1-company.1](https://github.com/fanqisyx/rustdesk/releases/tag/v1.5.1-company.1) 配套，不依赖 RustDesk Server Pro。
+
+当前服务端版本 **v1.1.17-company.1（预发布）**，管理 API 0.1.0、schema v2。成员可自行注册登录但初始无设备权限；管理员登记内部／外部资产并按组授权，也可允许分享单台设备，连接仍须设备密码／人工确认。
+
+## 已有 Windows 10 + hbbs.exe／hbbr.exe
+
+在 [本仓库 Releases](https://github.com/fanqisyx/rustdesk-server/releases) 下载 Windows 公司管理扩展 ZIP。保留现有 hbbs／hbbr，解压管理包到独立目录，在管理员 PowerShell 执行：
+
+```powershell
+Set-Location C:\RustDesk-Management
+.\windows\Install-Management.ps1 -PublicIp '替换为自己的固定公网IPv4'
+```
+
+管理包包含独立 EXE、HTTPS 和 Windows 服务工具，无需另装 Python／Docker。固定公网 IP 可申请公共 HTTPS 证书，需要 TCP 80/443 公网可达并保持自动续期。先验证 HTTPS，再以两台电脑试点纳管。
+
+[Windows 安装及回退](management/windows/README.md) · [权限与分享](management/README.md) · [设计与兼容性](docs/company/design.md) · [验证记录](management/VALIDATION.md) · [版本说明](docs/company/v1.1.17-company.1.md)
+
+旧被控端不会只因更换服务器就执行公司授权，需安装配套客户端并配置设备凭据。撤权不即时断开已有会话，Web 远控／Sciter 登录暂不支持。本版新增管理进程，不改变已有 hbbs/hbbr 的网络行为、数据库或密钥路径。
+
+## 上游 RustDesk Server Program
 
 [![build](https://github.com/rustdesk/rustdesk-server/actions/workflows/build.yaml/badge.svg)](https://github.com/rustdesk/rustdesk-server/actions/workflows/build.yaml)
 
