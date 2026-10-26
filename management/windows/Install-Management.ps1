@@ -68,7 +68,7 @@ try {
     [System.IO.File]::WriteAllText($caddyFile, $configuration, (New-Object System.Text.UTF8Encoding($false)))
     Invoke-Checked (Join-Path $PSScriptRoot 'caddy.exe') @('validate', '--config', $caddyFile, '--adapter', 'caddyfile')
     Invoke-Checked 'icacls.exe' @($bundleRoot, '/inheritance:r', '/grant:r',
-        '*S-1-5-18:(OI)(CI)F', '*S-1-5-32-544:(OI)(CI)F', '*S-1-5-19:(OI)(CI)RX')
+        '*S-1-5-18:(OI)(CI)F', '*S-1-5-32-544:(OI)(CI)F', '*S-1-5-19:(OI)(CI)RX', '*S-1-5-32-545:(OI)(CI)RX')
     Invoke-Checked 'icacls.exe' @($dataRoot, '/inheritance:r', '/grant:r',
         '*S-1-5-18:(OI)(CI)F', '*S-1-5-32-544:(OI)(CI)F', '*S-1-5-19:(OI)(CI)M')
     if (-not $SkipFirewall) {

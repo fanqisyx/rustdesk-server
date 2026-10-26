@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import re
+import shutil
 import subprocess
 import urllib.request
 import zipfile
@@ -78,6 +79,7 @@ def package(executable, output, cache):
         "commit": git("rev-parse", "HEAD"), "working_tree_dirty": bool(git("status", "--porcelain")),
         "api_version": "0.1.0", "schema_version": 2,
         "compatible_client": "v1.5.1-company.1",
+        "setup_compiler": "NSIS 3.11",
         "management_exe_sha256": hashlib.sha256(binary).hexdigest(),
         "build": json.loads((executable.parent / "build-info.json").read_text(encoding="utf-8")),
         "vendors": VENDORS,
@@ -102,6 +104,7 @@ def package(executable, output, cache):
                 archive.writestr(prefix + "windows/" + path.name, path.read_bytes())
         archive.writestr(prefix + "README.md", (ROOT / "management/windows/README.md").read_bytes())
         archive.writestr(prefix + "VALIDATION.md", (ROOT / "management/VALIDATION.md").read_bytes())
+        archive.writestr(prefix + "RustDesk-Windows-Server-Manual-zh-CN.pdf", (ROOT / "docs/company/RustDesk-Windows-Server-Manual-zh-CN.pdf").read_bytes())
         archive.writestr(prefix + "LICENSE", (ROOT / "LICENSE").read_bytes())
         archive.writestr(prefix + "release-manifest.json", payload)
         for path in sorted((executable.parent / "runtime-licenses").rglob("*")):
@@ -125,7 +128,9 @@ def package(executable, output, cache):
     manifest_path.write_bytes(payload)
     notes = output / f"release-notes-{tag}.md"
     notes.write_bytes((ROOT / f"docs/company/{tag}.md").read_bytes())
-    assets = [windows_zip, source_zip, manifest_path, notes]
+    manual = output / "RustDesk-Windows-Server-Manual-zh-CN.pdf"
+    shutil.copyfile(ROOT / "docs/company/RustDesk-Windows-Server-Manual-zh-CN.pdf", manual)
+    assets = [windows_zip, source_zip, manifest_path, notes, manual]
     (output / "SHA256SUMS").write_text("".join(
         f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n" for path in assets), encoding="utf-8")
     for path in assets + [output / "SHA256SUMS"]:

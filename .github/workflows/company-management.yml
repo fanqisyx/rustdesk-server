@@ -50,6 +50,13 @@ jobs:
         run: python tools/smoke_management_binary.py
       - name: Package company management add-on
         run: python tools/package_company_windows.py
+      - name: Build graphical Windows installer
+        run: python tools/build_windows_setup.py
+      - name: Verify installer conflict guard
+        shell: pwsh
+        run: |
+          $tag = (Get-Content COMPANY_RELEASE -Raw).Trim()
+          ./tools/smoke_windows_setup.ps1 -SetupFile "dist/company-release/rustdesk-server-company-$tag-Setup.exe"
       - name: Validate configuration and service templates
         shell: pwsh
         run: |
@@ -86,6 +93,8 @@ jobs:
             dist/company-release/*.zip
             dist/company-release/*.json
             dist/company-release/*.md
+            dist/company-release/*.exe
+            dist/company-release/*.pdf
             dist/company-release/SHA256SUMS
           if-no-files-found: error
 

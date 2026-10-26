@@ -40,9 +40,9 @@ try {
     Write-Output 'Packaged API started successfully as a LocalService Windows service.'
 } finally {
     if ($installed) {
-        & $wrapper stop
-        & $wrapper uninstall
-        if ($LASTEXITCODE -ne 0) { throw 'Smoke service cleanup failed.' }
+        & (Join-Path $resolvedBundle 'windows/Uninstall-Management.ps1')
+        if (Get-Service RustDeskCompanyAPI -ErrorAction SilentlyContinue) { throw 'Smoke service cleanup failed.' }
+        if (-not (Test-Path -LiteralPath $env:RDM_DATABASE)) { throw 'Service uninstall removed the database.' }
     }
     $env:RDM_BOOTSTRAP_PASSWORD = $oldPassword
     $env:RDM_DATABASE = $oldDatabase

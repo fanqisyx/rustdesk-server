@@ -548,7 +548,10 @@ def main():
     args = parser.parse_args()
     if args.command == "create-admin":
         password = os.environ.get("RDM_BOOTSTRAP_PASSWORD") or getpass.getpass("Administrator password (12+ characters): ")
-        body = UserCreate(name=args.username, display_name=args.username, password=password, role="admin")
+        try:
+            body = UserCreate(name=args.username, display_name=args.username, password=password, role="admin")
+        except ValueError:
+            parser.error("Invalid administrator account. Use a valid username and a password of 12 to 1024 characters.")
         with Database().connect() as db:
             db.execute("INSERT INTO users(name,display_name,password_hash,role) VALUES(?,?,?,?)",
                        (body.name, body.display_name, hash_password(body.password), "admin"))

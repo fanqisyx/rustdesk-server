@@ -4,6 +4,8 @@
 
 服务器最终运行：原有 hbbs、原有 hbbr、新增 RustDeskCompanyAPI、新增 RustDeskCompanyHTTPS。远控客户端 EXE 不能替代管理 API。
 
+推荐下载 v1.1.17-company.2 的 Setup.exe 双击安装，在向导中填写公网 IPv4 和管理员密码。默认安装目录为 C:\Program Files\RustDesk Company Server，开始菜单和 Windows 应用列表提供说明书及卸载入口；卸载保留 data。配套六页中文 PDF 在 Release 中可单独下载。以下继续说明手动 ZIP 方式，核心服务和检查要求相同。
+
 ## 1. 升级前确认
 
 在公司服务器的管理员 PowerShell 中检查：
@@ -23,7 +25,7 @@ Get-NetTCPConnection -State Listen |
 
 ## 2. 下载并安装新增服务
 
-在 [本仓库 Releases](https://github.com/fanqisyx/rustdesk-server/releases) 下载 `rustdesk-server-company-windows-x86_64-v1.1.17-company.1.zip`，对照同版本 SHA256SUMS 校验。将解压后的完整目录放到 C:\RustDesk-Management，使 rustdesk-management.exe 就在该目录，旁边有 windows 和 licenses 子目录。不要覆盖旧 hbbs/hbbr 安装目录。
+在 [本仓库 Releases](https://github.com/fanqisyx/rustdesk-server/releases) 下载 `rustdesk-server-company-windows-x86_64-v1.1.17-company.2.zip`，对照同版本 SHA256SUMS 校验。将解压后的完整目录放到 C:\RustDesk-Management，使 rustdesk-management.exe 就在该目录，旁边有 windows 和 licenses 子目录。不要覆盖旧 hbbs/hbbr 安装目录。
 
 在管理员 PowerShell 执行，示例 IP 必须替换为自己的真实固定公网 IPv4：
 

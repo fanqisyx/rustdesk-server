@@ -18,3 +18,5 @@ test.*
 !management/db.py
 __pycache__/
 *.py[cod]
+/output/
+/tmp/

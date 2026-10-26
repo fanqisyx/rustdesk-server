@@ -1,5 +1,7 @@
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -15,6 +17,18 @@ from security import digest, hash_password
 
 
 class ManagementTest(unittest.TestCase):
+    def test_invalid_bootstrap_password_is_not_printed(self):
+        secret = "bad-secret"
+        with tempfile.TemporaryDirectory() as directory:
+            environment = dict(os.environ, RDM_BOOTSTRAP_PASSWORD=secret,
+                               RDM_DATABASE=str(Path(directory) / "bootstrap.sqlite3"))
+            result = subprocess.run([sys.executable, str(Path(__file__).with_name("app.py")),
+                                     "create-admin", "--username", "admin"], env=environment,
+                                    capture_output=True, text=True, timeout=20)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn(secret, result.stdout + result.stderr)
+            self.assertIn("Invalid administrator account", result.stderr)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.app = create_app(str(Path(self.tmp.name) / "test.sqlite3"))
