@@ -52,6 +52,12 @@ jobs:
         run: python tools/package_company_windows.py
       - name: Build graphical Windows installer
         run: python tools/build_windows_setup.py
+      - name: Build and exercise certificate-free HTTP installer
+        shell: pwsh
+        run: |
+          python tools/build_windows_setup.py --http
+          $tag = (Get-Content COMPANY_RELEASE -Raw).Trim()
+          ./tools/smoke_windows_http_setup.ps1 -SetupFile "dist/company-release/rustdesk-server-company-$tag-HTTP-Setup.exe"
       - name: Verify installer conflict guard
         shell: pwsh
         run: |

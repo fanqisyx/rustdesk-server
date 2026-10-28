@@ -39,4 +39,15 @@ if ($null -ne $rule) {
         Write-Warning 'The firewall rule now points elsewhere; it was retained.'
     }
 }
+$httpRule = Get-NetFirewallRule -Name RustDeskCompanyHTTP -ErrorAction SilentlyContinue
+if ($null -ne $httpRule) {
+    $programs = @($httpRule | Get-NetFirewallApplicationFilter | Select-Object -ExpandProperty Program)
+    if ($programs.Count -eq 1 -and $programs[0] -ieq (Join-Path $bundleRoot 'rustdesk-management.exe')) {
+        if ($PSCmdlet.ShouldProcess('RustDeskCompanyHTTP', 'Remove this application firewall rule')) {
+            $httpRule | Remove-NetFirewallRule
+        }
+    } else {
+        Write-Warning 'The HTTP firewall rule now points elsewhere; it was retained.'
+    }
+}
 Write-Output "Management services removed. Data retained at $bundleRoot\data. hbbs/hbbr were not changed."

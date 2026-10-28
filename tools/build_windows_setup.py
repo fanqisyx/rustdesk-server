@@ -18,7 +18,7 @@ def nsis_string(value):
     return str(value).replace("$", "$$").replace('"', '$\\"')
 
 
-def build(output, compiler=None):
+def build(output, compiler=None, http=False):
     tag = (ROOT / "COMPANY_RELEASE").read_text().strip()
     match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)-company\.(\d+)", tag)
     if not match:
@@ -37,7 +37,7 @@ def build(output, compiler=None):
         compiler = cache / "nsis-3.11/makensis.exe"
     output = output.resolve()
     package_path = output / f"rustdesk-server-company-windows-x86_64-{tag}.zip"
-    setup = output / f"rustdesk-server-company-{tag}-Setup.exe"
+    setup = output / f"rustdesk-server-company-{tag}-{'HTTP-' if http else ''}Setup.exe"
     build_root = ROOT / "build"
     build_root.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="setup-", dir=build_root) as directory:
@@ -64,7 +64,7 @@ def build(output, compiler=None):
         command = [str(compiler), "/V2", "/INPUTCHARSET", "UTF8",
                    f"/DRELEASE_TAG={tag}", f"/DVERSION_NUM={'.'.join(match.groups())}",
                    f"/DPAYLOAD_DIR={bundle}", f"/DSETUP_OUT={setup}", f"/DDELETE_INCLUDE={deletion}",
-                   str(ROOT / "management/windows/setup/CompanySetup.nsi")]
+                   str(ROOT / f"management/windows/setup/Company{'Http' if http else ''}Setup.nsi")]
         subprocess.run(command, cwd=ROOT, check=True, timeout=300)
     if not setup.read_bytes().startswith(b"MZ"):
         raise ValueError("The compiler did not produce a Windows installer")
@@ -79,5 +79,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / "dist/company-release")
     parser.add_argument("--makensis", type=Path)
+    parser.add_argument("--http", action="store_true", help="Build the certificate-free plaintext HTTP installer")
     args = parser.parse_args()
-    build(args.output, args.makensis.resolve() if args.makensis else None)
+    build(args.output, args.makensis.resolve() if args.makensis else None, args.http)

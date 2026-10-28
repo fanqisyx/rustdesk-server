@@ -79,6 +79,7 @@ def package(executable, output, cache):
         "commit": git("rev-parse", "HEAD"), "working_tree_dirty": bool(git("status", "--porcelain")),
         "api_version": "0.1.0", "schema_version": 2,
         "compatible_client": "v1.5.1-company.1",
+        "plaintext_http_minimum_client": "v1.5.1-company.2",
         "setup_compiler": "NSIS 3.11",
         "management_exe_sha256": hashlib.sha256(binary).hexdigest(),
         "build": json.loads((executable.parent / "build-info.json").read_text(encoding="utf-8")),

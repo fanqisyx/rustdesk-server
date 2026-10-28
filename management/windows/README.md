@@ -1,5 +1,7 @@
 # Windows 10：为现有 hbbs/hbbr 增加公司管理服务
 
+**不使用 80/443、无需证书：** 下载 v1.1.17-company.3 的 **HTTP-Setup.exe**，默认独立 TCP 21114，可自定义。HTTP 会明文传输密码和令牌，须配套客户端 v1.5.1-company.2 并明确勾选允许。安装、升级和被控端配置见 [HTTP 专用说明](HTTP.md)。以下保留原 HTTPS 部署方式。
+
 适用环境：已有 hbbs.exe／hbbr.exe、固定公网 IPv4、暂时没有域名。使用本仓库的 **Windows 管理扩展 ZIP**，无需安装 Python 或 Docker。本包不含 hbbs/hbbr；这两项服务继续使用原安装、原端口和原密钥。
 
 服务器最终运行：原有 hbbs、原有 hbbr、新增 RustDeskCompanyAPI、新增 RustDeskCompanyHTTPS。远控客户端 EXE 不能替代管理 API。
